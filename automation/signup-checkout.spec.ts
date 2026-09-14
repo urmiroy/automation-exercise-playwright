@@ -1,16 +1,18 @@
 import { test, expect } from '@playwright/test';
 
-test('Scenario 1: sign up, shop, checkout, and log out', async ({ page }) => {
-  // Generate a unique email address for every test run
-  const email = `playwright.${Date.now()}@example.com`;
+test('Scenario 1: Signup - Checkout', async ({ page }) => {
 
-  // Set the password for the new user account
+  // Generate a unique email and password 
+  const email = `sonam.${Date.now()}@example.com`;
   const password = 'Playwright123!';
 
-  // Open the Automation Exercise homepage
+
+  //Signup//
+
+  // step 1: visit the Automation Exercise homepage
   await page.goto('https://automationexercise.com/');
 
-  // Navigate to the Signup / Login page
+  // step 2: Navigate to the Signup / Login page
   await page.getByRole('link', { name: /Signup \/ Login/ }).click();
 
   // Verify that the New User Signup section is displayed
@@ -19,7 +21,7 @@ test('Scenario 1: sign up, shop, checkout, and log out', async ({ page }) => {
   ).toBeVisible();
 
   // Enter the new user's name
-  await page.locator('input[data-qa="signup-name"]').fill('Playwright User');
+  await page.locator('input[data-qa="signup-name"]').fill('Sonam Kapoor');
 
   // Enter the unique email address
   await page.locator('input[data-qa="signup-email"]').fill(email);
@@ -36,18 +38,25 @@ test('Scenario 1: sign up, shop, checkout, and log out', async ({ page }) => {
   // Enter account password
   await page.locator('#password').fill(password);
 
-  // Select date of birth
-  await page.locator('#days').selectOption('10');
-  await page.locator('#months').selectOption('5');
-  await page.locator('#years').selectOption('1990');
+
+// Generate random date of birth for an adult user
+const randomDay = String(Math.floor(Math.random() * 28) + 1);
+const randomMonth = String(Math.floor(Math.random() * 12) + 1);
+const randomYear = String(Math.floor(Math.random() * 15) + 1985);
+
+// Select random date of birth
+await page.locator('#days').selectOption(randomDay);
+await page.locator('#months').selectOption(randomMonth);
+await page.locator('#years').selectOption(randomYear);
+
 
   // Subscribe to newsletter and special offers
   await page.locator('#newsletter').check();
   await page.locator('#optin').check();
 
   // Enter user's personal information
-  await page.locator('#first_name').fill('Playwright');
-  await page.locator('#last_name').fill('User');
+  await page.locator('#first_name').fill('Sonam');
+  await page.locator('#last_name').fill('Kapoor');
 
   // Enter company and address information
   await page.locator('#company').fill('Test Company');
@@ -74,33 +83,42 @@ test('Scenario 1: sign up, shop, checkout, and log out', async ({ page }) => {
 
   // Verify that the user is logged in
   await expect(
-    page.getByText('Logged in as Playwright User')
+    page.getByText('Logged in as Sonam Kapoor')
   ).toBeVisible();
+
+
+  //PRODUCT PAGE //
 
   // Navigate to the Products page
   await page.getByRole('link', { name: /Products/ }).click();
 
-  // Open the Blue Top product details
-  await page.locator('a[href="/product_details/1"]').click();
+   // Verify that the product details page is displayed
+  await expect(page).toHaveURL(/products/);
 
-  // Verify that the product details page is displayed
-  await expect(page).toHaveURL(/product_details\/1/);
+// Open Summer White Top product details
+await page.locator('a[href="/product_details/6"]').click();
 
-  // Verify the product name
+// Verify that the Summer White Top product details page is displayed
+await expect(page).toHaveURL(/product_details\/6/);
+
+ // Verify the product name
   await expect(
     page.locator('.product-information h2')
-  ).toHaveText('Blue Top');
+  ).toHaveText('Summer White Top');
 
   // Verify the product price
   await expect(
     page.locator('.product-information')
-  ).toContainText('Rs. 500');
+  ).toContainText('Rs. 400');
 
   // Set the product quantity to 2
   await page.locator('#quantity').fill('2');
 
   // Add the product to the cart
   await page.getByText('Add to cart', { exact: true }).click();
+
+
+  //--------------Add product to cart--------------//
 
   // Open the shopping cart
   await page.getByRole('link', { name: /View Cart/ }).click();
@@ -111,7 +129,7 @@ test('Scenario 1: sign up, shop, checkout, and log out', async ({ page }) => {
   // Verify that the selected product is in the cart
   await expect(
     page.locator('#cart_info_table')
-  ).toContainText('Blue Top');
+  ).toContainText('Summer White Top');
 
   // Verify that the product quantity is 2
   await expect(
@@ -127,12 +145,12 @@ test('Scenario 1: sign up, shop, checkout, and log out', async ({ page }) => {
   // Verify the delivery address
   await expect(
     page.locator('#address_delivery')
-  ).toContainText('Playwright User');
+  ).toContainText('Sonam Kapoor');
 
   // Verify that the selected product appears in the order summary
   await expect(
     page.locator('#cart_info')
-  ).toContainText('Blue Top');
+  ).toContainText('Summer White Top');
 
   // Place the order
   await page.getByText('Place Order', { exact: true }).click();
@@ -141,7 +159,7 @@ test('Scenario 1: sign up, shop, checkout, and log out', async ({ page }) => {
   await expect(page).toHaveURL(/payment/);
 
   // Enter payment information
-  await page.locator('[data-qa="name-on-card"]').fill('Playwright User');
+  await page.locator('[data-qa="name-on-card"]').fill('Tom Cruise');
   await page.locator('[data-qa="card-number"]').fill('4111111111111111');
   await page.locator('[data-qa="cvc"]').fill('123');
   await page.locator('[data-qa="expiry-month"]').fill('12');
