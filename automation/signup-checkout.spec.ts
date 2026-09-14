@@ -1,76 +1,166 @@
 import { test, expect } from '@playwright/test';
 
 test('Scenario 1: sign up, shop, checkout, and log out', async ({ page }) => {
+  // Generate a unique email address for every test run
   const email = `playwright.${Date.now()}@example.com`;
+
+  // Set the password for the new user account
   const password = 'Playwright123!';
 
+  // Open the Automation Exercise homepage
   await page.goto('https://automationexercise.com/');
+
+  // Navigate to the Signup / Login page
   await page.getByRole('link', { name: /Signup \/ Login/ }).click();
 
-  await expect(page.getByRole('heading', { name: 'New User Signup!' })).toBeVisible();
+  // Verify that the New User Signup section is displayed
+  await expect(
+    page.getByRole('heading', { name: 'New User Signup!' })
+  ).toBeVisible();
+
+  // Enter the new user's name
   await page.locator('input[data-qa="signup-name"]').fill('Playwright User');
+
+  // Enter the unique email address
   await page.locator('input[data-qa="signup-email"]').fill(email);
+
+  // Click the Signup button
   await page.getByRole('button', { name: 'Signup' }).click();
 
+  // Verify that the account registration page is displayed
   await expect(page).toHaveURL(/signup/);
+
+  // Select gender
   await page.locator('#id_gender1').check();
+
+  // Enter account password
   await page.locator('#password').fill(password);
+
+  // Select date of birth
   await page.locator('#days').selectOption('10');
   await page.locator('#months').selectOption('5');
   await page.locator('#years').selectOption('1990');
+
+  // Subscribe to newsletter and special offers
   await page.locator('#newsletter').check();
   await page.locator('#optin').check();
+
+  // Enter user's personal information
   await page.locator('#first_name').fill('Playwright');
   await page.locator('#last_name').fill('User');
+
+  // Enter company and address information
   await page.locator('#company').fill('Test Company');
   await page.locator('#address1').fill('10 Test Street');
   await page.locator('#address2').fill('Test District');
+
+  // Select country
   await page.locator('#country').selectOption({ label: 'United States' });
+
+  // Enter location details
   await page.locator('#state').fill('California');
   await page.locator('#city').fill('San Francisco');
   await page.locator('#zipcode').fill('94105');
   await page.locator('#mobile_number').fill('4155550100');
+
+  // Create the new user account
   await page.getByRole('button', { name: 'Create Account' }).click();
 
+  // Verify that the account was successfully created
   await expect(page.getByText('Account Created!')).toBeVisible();
-  await page.getByRole('link', { name: 'Continue' }).click();
-  await expect(page.getByText('Logged in as Playwright User')).toBeVisible();
 
+  // Continue after account creation
+  await page.getByRole('link', { name: 'Continue' }).click();
+
+  // Verify that the user is logged in
+  await expect(
+    page.getByText('Logged in as Playwright User')
+  ).toBeVisible();
+
+  // Navigate to the Products page
   await page.getByRole('link', { name: /Products/ }).click();
+
+  // Open the Blue Top product details
   await page.locator('a[href="/product_details/1"]').click();
 
+  // Verify that the product details page is displayed
   await expect(page).toHaveURL(/product_details\/1/);
-  await expect(page.locator('.product-information h2')).toHaveText('Blue Top');
-  await expect(page.locator('.product-information')).toContainText('Rs. 500');
 
+  // Verify the product name
+  await expect(
+    page.locator('.product-information h2')
+  ).toHaveText('Blue Top');
+
+  // Verify the product price
+  await expect(
+    page.locator('.product-information')
+  ).toContainText('Rs. 500');
+
+  // Set the product quantity to 2
   await page.locator('#quantity').fill('2');
+
+  // Add the product to the cart
   await page.getByText('Add to cart', { exact: true }).click();
+
+  // Open the shopping cart
   await page.getByRole('link', { name: /View Cart/ }).click();
 
+  // Verify that the cart page is displayed
   await expect(page).toHaveURL(/view_cart/);
-  await expect(page.locator('#cart_info_table')).toContainText('Blue Top');
-  await expect(page.locator('.cart_quantity button')).toHaveText('2');
 
+  // Verify that the selected product is in the cart
+  await expect(
+    page.locator('#cart_info_table')
+  ).toContainText('Blue Top');
+
+  // Verify that the product quantity is 2
+  await expect(
+    page.locator('.cart_quantity button')
+  ).toHaveText('2');
+
+  // Proceed to checkout
   await page.getByText('Proceed To Checkout', { exact: true }).click();
 
+  // Verify that the checkout page is displayed
   await expect(page).toHaveURL(/checkout/);
-  await expect(page.locator('#address_delivery')).toContainText('Playwright User');
-  await expect(page.locator('#cart_info')).toContainText('Blue Top');
 
+  // Verify the delivery address
+  await expect(
+    page.locator('#address_delivery')
+  ).toContainText('Playwright User');
+
+  // Verify that the selected product appears in the order summary
+  await expect(
+    page.locator('#cart_info')
+  ).toContainText('Blue Top');
+
+  // Place the order
   await page.getByText('Place Order', { exact: true }).click();
 
+  // Verify that the payment page is displayed
   await expect(page).toHaveURL(/payment/);
+
+  // Enter payment information
   await page.locator('[data-qa="name-on-card"]').fill('Playwright User');
   await page.locator('[data-qa="card-number"]').fill('4111111111111111');
   await page.locator('[data-qa="cvc"]').fill('123');
   await page.locator('[data-qa="expiry-month"]').fill('12');
   await page.locator('[data-qa="expiry-year"]').fill('2030');
 
+  // Submit the payment and confirm the order
   await page.getByRole('button', { name: 'Pay and Confirm Order' }).click();
 
+  // Verify that the order was successfully placed
   await expect(page.getByText('Order Placed!')).toBeVisible();
 
+  // Logout from the application
   await page.getByRole('link', { name: 'Logout' }).click();
+
+  // Verify that the user is redirected to the Login page
   await expect(page).toHaveURL(/login/);
-  await expect(page.getByRole('heading', { name: 'Login to your account' })).toBeVisible();
+
+  // Verify that the Login page is displayed
+  await expect(
+    page.getByRole('heading', { name: 'Login to your account' })
+  ).toBeVisible();
 });
